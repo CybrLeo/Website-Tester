@@ -1,1 +1,1 @@
-
+This is an assignment for the Software Development course. We were split into pairs to create "Insert Project Description". This project was split into three different assignments, ........ . Throughout each phase of the project, I was responsible for the implementation of the Post object. My partner implemented the Blog object.
