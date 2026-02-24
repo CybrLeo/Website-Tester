@@ -33,7 +33,7 @@ def open_connection(host, port, protocol):
 
 def send_request(sock, host, path="/"):
     request = f"GET {path}  HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n"
-    sock.sendall(request.encode("utf-8"))
+    sock.sendall(request.encode())
     response = b""
     while True:
         data = sock.recv(4096)
@@ -45,8 +45,8 @@ def send_request(sock, host, path="/"):
 
 def parse_response(response):
     header_data, body_data = response.split(b"\r\n\r\n", 1)
-    headers = header_data.decode("utf-8")
-    body = body_data.decode("utf-8")
+    headers = header_data.decode()
+    body = body_data.decode()
     return headers, body
 
 def handle_redirects(uri, max_redirects):
