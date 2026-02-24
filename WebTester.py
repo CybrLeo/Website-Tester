@@ -3,9 +3,14 @@ import sys
 import ssl
 
 def parse_uri(uri):
+    if "://" not in uri:
+        raise ValueError("Invalid URI")
+    
     protocol_string = uri.split("://", 1)
     protocol = protocol_string[0]
     remainder = protocol_string[1]
+    if protocol not in ("http, https"):
+        raise ValueError("Invalid protocol")
 
     if "/" in remainder:
         host_port, path = remainder.split("/", 1)
@@ -88,7 +93,7 @@ def extract_cookies(headers):
     for line in headers.split("\r\n"):
         if line.lower().startswith("set-cookie:"):
             cookie = line.split(":", 1)[1].strip()
-            parts = [p.strip() for p in cookie.split(";)")]
+            parts = [p.strip() for p in cookie.split(";"))]
             name = parts[0].split("=", 1)[0]
             domain = None
             expires = None
@@ -103,10 +108,30 @@ def extract_cookies(headers):
     return cookies
 
 def main():
-    uri = sys.stdin.read().strip()
-    protocol, host, port, path = parse_uri(uri)
-    print(f"website: {host}")
+    try:
+        uri = sys.stdin.read().strip()
+        protocol, host, port, path = parse_uri(uri)
+        print(f"website: {host}")
+        
+    except socket.gaierror:
+        print(f"Unable to resovle host '{host}'")
+        sys.exit(1)
 
+    except ConnectionRefusedError:
+        print(f"Connection refused by {host}:{port}")
+        sys.exit(1)
+
+    except socket.timeout:
+        print(f"Connection to {host}:{port} timed out")
+        sys.exit(1)
+
+    except ssl.sslError:
+        print(f"SSL/TSL connection with {host} failed")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"error: {e}")
+        sys.exit(1)
     h2 = "no"
     if protocol == "https":
         h2 = check_support(host, port)
